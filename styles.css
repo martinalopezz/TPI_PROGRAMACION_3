@@ -5,13 +5,13 @@
   box-sizing: border-box;
 }
 
-.card-habitacion.seleccionada {
+.room-card.seleccionada {
   border: 3px solid #0b63c6;
   box-shadow: 0 8px 30px rgba(11, 99, 198, 0.3);
   transform: scale(1.02);
 }
 
-.btn-chico {
+.btn-small {
   padding: 8px 16px;
   border-radius: 6px;
   border: none;
@@ -19,17 +19,16 @@
   font-size: 0.9rem;
 }
 
-.btn-editar, .btn-editar-precio {
+.btn-edit, .btn-edit-price {
   background: #6366f1;
   color: white;
 }
 
-.btn-cancelar {
+.btn-cancel {
   background: #ef4444;
   color: white;
 }
-
-/*ESTILO GENERAL DEL SITIO WEB*/
+/* GENERAL */
 body {
   font-family: "Inter", sans-serif;
   background: #f4f7fb;
@@ -37,7 +36,7 @@ body {
   line-height: 1.6;
 }
 
-.contenedor {
+.container {
   width: min(1100px, 95%);
   margin: auto;
 }
@@ -58,13 +57,13 @@ body {
   align-items: center;
 }
 
-.marca {
+.brand {
   font-size: 1.2rem;
   font-weight: 700;
   color: #0b3d91;
 }
 
-/* NAVEGADOR */
+/* NAV */
 .top-nav {
   margin-left: auto;
   padding-right: 40px;
@@ -80,24 +79,6 @@ body {
 .top-nav a:hover {
   color: #3f85ff;
 }
-
-/* Botón cerrar sesión */
-.btn-cerrar-sesion {
-  margin-left: 15px;
-  padding: 6px 14px;
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color .2s ease, opacity .2s ease;
-}
-
-.btn-cerrar-sesion:hover {
-  background-color: #dc2626;
-}
-
 
 /* HERO */
 .hero {
@@ -125,7 +106,7 @@ body {
   margin-bottom: 15px;
 }
 
-/*TARJETA LOGIN / REGISTRO */
+/* LOGIN CARD */
 .auth-card {
   background: rgba(255,255,255,0.97);
   width: 330px;
@@ -151,7 +132,7 @@ body {
   background: #e5e7eb;
 }
 
-.auth-tabs .tab.activo {
+.auth-tabs .tab.active {
   background: #605e5e;
   color: #ffffff;
 }
@@ -160,7 +141,7 @@ body {
   display: none;
 }
 
-.form.activo {
+.form.active {
   display: block;
 }
 
@@ -178,7 +159,6 @@ body {
   border: 1px solid #d1d5db;
 }
 
-/*BOTON PRINCIPAL*/
 .btn {
   width: 100%;
   padding: 12px;
@@ -193,8 +173,10 @@ body {
   color: white;
 }
 
-/* TARJETA DE BÚSQUEDA */
-.tarjeta-busqueda{
+/* ===========================
+      BUSCADOR MEJORADO
+=========================== */
+.search-card {
   background: white;
   padding: 18px 24px;
   border-radius: 14px;
@@ -206,23 +188,23 @@ body {
   box-shadow: 0 12px 25px rgba(0,0,0,0.1);
 }
 
-
-.campos-busqueda  {
+/* GRID PERFECTO EN 1 FILA */
+.search-fields {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr auto;
   gap: 25px;
   align-items: end;
 }
 
-.campo label {
+.search-fields .field label {
   font-size: .85rem;
   display: block;
   margin-bottom: 6px;
   color: #374151;
 }
 
-.campo input,
-.campo select {
+.search-fields input,
+.search-fields select {
   padding: 10px;
   height: 40px;
   border-radius: 8px;
@@ -246,7 +228,7 @@ body {
   padding-bottom: 40px;
 }
 
-.titulo-seccion{
+.section-title {
   text-align: center;
   font-size: 1.6rem;
   font-weight: 700;
@@ -255,7 +237,7 @@ body {
 }
 
 /* HABITACIONES */
-.cards-grids {
+.cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
   gap: 20px;
@@ -279,59 +261,28 @@ body {
   object-fit: cover;
 }
 
-.cuerpo-card {
+.card-body {
   padding: 16px;
 }
 
-.titulo-card{
+.card-title {
   font-size: 1.1rem;
   color: #0b3d91;
 }
 
-.subtitulo-card{
+.card-sub {
   color: #6b7280;
   font-size: 0.9rem;
 }
 
-.pie-card .precio{
+.price {
   font-size: 1.1rem;
   font-weight: 700;
   color: #0b3d91;
 }
 
-/* MIS RESERVAS */
-#lista-reservas {
-  margin-top: 10px;
-}
-
-.fila-reserva {
-  background: #fff;
-  padding: 14px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-/* Habitaciones ocupadas */
-.card-habitacion.ocupada {
-  filter: grayscale(100%);
-  opacity: 0.65;
-  border: 2px solid #e11d48;
-}
-
-.ocupada {
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.seleccionada {
-  border: 2px solid #007bff;
-}
-
 /* CONTACTO */
-.caja-contacto {
+.contact-box {
   background: white;
   padding: 24px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
@@ -341,128 +292,38 @@ body {
   text-align: center;
 }
 
-/* PIE DE PÁGINA */
-.pie-de-pagina {
+/* FOOTER */
+.site-footer {
   text-align: center;
   padding: 30px 0;
   color: #6b7280;
   margin-top: 40px;
 }
 
+/* RESERVAS */
+#reservations-list {
+  margin-top: 10px;
+}
 
+.reservation-row {
+  background: #fff;
+  padding: 14px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.room-card.ocupada {
+  filter: grayscale(100%);
+  opacity: 0.65;
+  border: 2px solid #e11d48;
+}
+
+/* RESPONSIVE */
 @media (min-width: 900px) {
   .hero-inner {
     grid-template-columns: 1fr 350px;
   }
 }
-/* --- CONTENEDORES DEL PANEL ADMIN --- */
-#panel-admin {
-  margin-top: 40px;
-  background: #ffffff;
-  padding: 25px;
-  border-radius: 14px;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.07);
-}
-
-#panel-admin h3 {
-  font-size: 1.4rem;
-  margin-bottom: 15px;
-  color: #0b3d91;
-  border-left: 5px solid #0b63c6;
-  padding-left: 10px;
-}
-
-#panel-admin h4 {
-  margin-top: 25px;
-  color: #111827;
-  font-size: 1.1rem;
-}
-
-/* --- SECCIONES DENTRO DEL PANEL ADMIN --- */
-.admin-section {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin-top: 15px;
-  box-shadow: 0 3px 18px rgba(0,0,0,0.05);
-}
-
-/* --- FILAS DE USUARIOS / RESERVAS / HABITACIONES --- */
-.reservation-row {
-  background: #f9fafb;
-  padding: 14px 16px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: 0.2s ease;
-}
-
-.reservation-row:hover {
-  background: #eef3ff;
-  border-color: #c7d7ff;
-}
-
-/* --- TEXTOS DENTRO DE LAS FILAS --- */
-.reservation-row strong {
-  color: #0b3d91;
-  font-size: 1rem;
-}
-
-.reservation-row span {
-  font-weight: 600;
-}
-
-/* --- BOTONES CHICOS (ADMIN) --- */
-.btn-small {
-  padding: 8px 14px;
-  font-size: 0.85rem;
-  border-radius: 8px;
-  cursor: pointer;
-  border: none;
-  transition: 0.2s;
-}
-
-.btn-small:hover {
-  opacity: 0.85;
-}
-
-/* Colores de botones */
-.btn-cambiar-clave { background: #2563eb; color: white; }
-.btn-eliminar-usuario { background: #ef4444; color: white; }
-.btn-edit { background: #6366f1; color: white; }
-
-/* --- SELECT DE ESTADO DE RESERVA --- */
-.sel-estado {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background: white;
-  font-size: 0.9rem;
-}
-
-/* --- FORM CREAR USUARIO ADMIN --- */
-#admin-crear-usuario-form input,
-#admin-crear-usuario-form select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 0.9rem;
-}
-
-#admin-crear-usuario-form button {
-  background: #0b63c6;
-  color: white;
-  padding: 10px 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: none;
-  transition: 0.2s;
-}
-
-#admin-crear-usuario-form button:hover {
-  background: #084b9f;
-}
-

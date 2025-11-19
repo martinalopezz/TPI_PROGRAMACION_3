@@ -1,7 +1,7 @@
 // URLs de MockAPI
-const API_URL = 'https://691ce2ded58e64bf0d344924.mockapi.io/api/Hotel';
-const USUARIOS_URL = `${API_URL}/Usuarios`;
-const HABITACIONES_URL = `${API_URL}/Habitaciones`;
+const URL_API = 'https://691ce2ded58e64bf0d344924.mockapi.io/api/Hotel';
+const URL_USUARIOS = `${URL_API}/Usuarios`;
+const URL_HABITACIONES = `${URL_API}/Habitaciones`;
 
 // Variables globales
 let usuarioActual = null;
@@ -30,8 +30,8 @@ const limpiarUsuarioActual = () => {
 // Funciones API
 async function obtenerUsuarios() {
   try {
-    const response = await fetch(USUARIOS_URL);
-    usuarios = await response.json();
+    const respuesta = await fetch(URL_USUARIOS);
+    usuarios = await respuesta.json();
     return usuarios;
   } catch (error) {
     console.error('Error al cargar usuarios:', error);
@@ -42,8 +42,8 @@ async function obtenerUsuarios() {
 
 async function obtenerHabitaciones() {
   try {
-    const response = await fetch(HABITACIONES_URL);
-    habitaciones = await response.json();
+    const respuesta = await fetch(URL_HABITACIONES);
+    habitaciones = await respuesta.json();
     return habitaciones;
   } catch (error) {
     console.error('Error al cargar habitaciones:', error);
@@ -54,12 +54,12 @@ async function obtenerHabitaciones() {
 
 async function crearUsuario(datosUsuario) {
   try {
-    const response = await fetch(USUARIOS_URL, {
+    const respuesta = await fetch(URL_USUARIOS, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(datosUsuario)
     });
-    const nuevoUsuario = await response.json();
+    const nuevoUsuario = await respuesta.json();
     usuarios.push(nuevoUsuario);
     return nuevoUsuario;
   } catch (error) {
@@ -71,12 +71,12 @@ async function crearUsuario(datosUsuario) {
 
 async function actualizarHabitacion(id, datos) {
   try {
-    const response = await fetch(`${HABITACIONES_URL}/${id}`, {
+    const respuesta = await fetch(`${URL_HABITACIONES}/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(datos)
     });
-    const actualizada = await response.json();
+    const actualizada = await respuesta.json();
     const indice = habitaciones.findIndex(h => h.id === id);
     if (indice !== -1) habitaciones[indice] = actualizada;
     return actualizada;
@@ -89,7 +89,7 @@ async function actualizarHabitacion(id, datos) {
 
 // Inicialización con datos de prueba
 async function inicializarDatos() {
-  console.log('Iniciando inicializarDatos...');
+  console.log('Iniciando inicialización de datos...');
   await obtenerUsuarios();
   await obtenerHabitaciones();
   
@@ -111,7 +111,7 @@ async function inicializarDatos() {
   if (habitaciones.length === 0) {
     console.log('No hay habitaciones. Creando...');
     
-    const hab1 = await fetch(HABITACIONES_URL, {
+    const hab1 = await fetch(URL_HABITACIONES, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -123,7 +123,7 @@ async function inicializarDatos() {
     });
     console.log('Habitación 1 creada:', await hab1.json());
 
-    const hab2 = await fetch(HABITACIONES_URL, {
+    const hab2 = await fetch(URL_HABITACIONES, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -135,7 +135,7 @@ async function inicializarDatos() {
     });
     console.log('Habitación 2 creada:', await hab2.json());
 
-    const hab3 = await fetch(HABITACIONES_URL, {
+    const hab3 = await fetch(URL_HABITACIONES, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -167,30 +167,30 @@ function mostrarMensaje(texto, tipo = "ok") {
 }
 
 // Tabs
-function activarTabs() {
-  const pestañas = document.querySelectorAll(".auth-tabs .tab");
+function activarPestanas() {
+  const pestanas = document.querySelectorAll(".auth-tabs .tab");
   const formularios = document.querySelectorAll(".auth-forms .form");
 
-  pestañas.forEach(pestaña => {
-    pestaña.addEventListener("click", () => {
-      pestañas.forEach(p => p.classList.remove("activo"));
-      pestaña.classList.add("activo");
+  pestanas.forEach(pestana => {
+    pestana.addEventListener("click", () => {
+      pestanas.forEach(p => p.classList.remove("active"));
+      pestana.classList.add("active");
 
       formularios.forEach(f => {
-        f.classList.toggle("activo", f.id.startsWith("form-" + pestaña.dataset.tab));
+        f.classList.toggle("active", f.id.startsWith(pestana.dataset.tab));
       });
     });
   });
 }
 
 // Registro
-function registrar() {
-  const formulario = document.getElementById("form-registro");
+function configurarRegistro() {
+  const formulario = document.getElementById("register-form");
   formulario.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const nombre = document.getElementById("registro-nombre").value.trim();
-    const email = document.getElementById("registro-email").value.trim();
-    const password = document.getElementById("registro-clave").value.trim();
+    const nombre = document.getElementById("reg-nombre").value.trim();
+    const email = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password").value.trim();
 
     if (!nombre || !email || !password) {
       mostrarMensaje("Completá todos los campos", "error");
@@ -218,12 +218,12 @@ function registrar() {
 }
 
 // Login
-function ingresar() {
-  const formulario = document.getElementById("form-ingreso");
+function configurarLogin() {
+  const formulario = document.getElementById("login-form");
   formulario.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("ingreso-email").value.trim();
-    const password = document.getElementById("ingreso-clave").value.trim();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value.trim();
 
     await obtenerUsuarios();
     const usuario = usuarios.find(u => u.email === email && u.password === password);
@@ -241,7 +241,7 @@ function ingresar() {
       document.querySelector(".auth-card").style.display = "none";
     }, 1000);
     
-    renderizarDespuesDeIngresar();
+    renderizarDespuesDeLogin();
   });
 }
 
@@ -253,12 +253,12 @@ function cerrarSesion() {
   // MOSTRAR la tarjeta de login al cerrar sesión
   document.querySelector(".auth-card").style.display = "block";
   
-  renderizarDespuesDeIngresar();
+  renderizarDespuesDeLogin();
 }
 
 // Header
 function renderizarEncabezado() {
-  const botonCerrarSesion = document.getElementById("CerrarSesionBtn");
+  const botonCerrarSesion = document.getElementById("logoutBtn");
 
   if (usuarioActual) {
     botonCerrarSesion.style.display = "inline-block";
@@ -269,22 +269,22 @@ function renderizarEncabezado() {
 }
 
 // Formato moneda
-function formatearPrecio(n) {
-  return "$" + n.toLocaleString();
+function formatearPrecio(numero) {
+  return "$" + numero.toLocaleString();
 }
 
 // Render habitaciones
 async function renderizarHabitaciones() {
   await obtenerHabitaciones();
   
-  const grilla = document.querySelector(".cards-grids");
+  const grilla = document.querySelector(".cards-grid");
   grilla.innerHTML = "";
 
   const hoy = new Date().toISOString().split("T")[0];
 
-  habitaciones.forEach((habitacion, i) => {
+  habitaciones.forEach((habitacion, indice) => {
     const tarjeta = document.createElement("article");
-    tarjeta.className = "card card-habitacion";
+    tarjeta.className = "card room-card";
     tarjeta.dataset.roomId = habitacion.id;
 
     // Verificar si hay reservas activas
@@ -299,12 +299,12 @@ async function renderizarHabitaciones() {
     }
 
     tarjeta.innerHTML = `
-      <img src="habitacion${i + 1}.jpg" alt="${habitacion.tipo}">
-      <div class="cuerpo-card">
-        <h3 class="titulo-card">${habitacion.tipo}</h3>
-        <p class="subtitulo-card">Capacidad: estándar</p>
-        <div class="pie-card">
-          <span class="precio">${ocupada ? "OCUPADA" : formatearPrecio(habitacion.precio)}</span>
+      <img src="habitacion${indice + 1}.jpg" alt="${habitacion.tipo}">
+      <div class="card-body">
+        <h3 class="card-title">${habitacion.tipo}</h3>
+        <p class="card-sub">Capacidad: estándar</p>
+        <div class="card-footer">
+          <span class="price">${ocupada ? "OCUPADA" : formatearPrecio(habitacion.precio)}</span>
           ${usuarioActual && usuarioActual.role === "ADMIN" ? 
             `<button class="btn btn-small btn-edit-price">Editar</button>` : 
             ''}
@@ -322,13 +322,13 @@ async function renderizarHabitaciones() {
     document.querySelectorAll(".btn-edit-price").forEach(boton => {
       boton.addEventListener("click", (e) => {
         e.stopPropagation();
-        solicitarEditarPrecio(boton.closest(".card-habitacion").dataset.roomId);
+        solicitarEditarPrecio(boton.closest(".room-card").dataset.roomId);
       });
     });
   }
 
   // Eventos para SELECCIONAR habitación (no reservar directamente)
-  document.querySelectorAll(".card-habitacion").forEach(tarjeta => {
+  document.querySelectorAll(".room-card").forEach(tarjeta => {
     tarjeta.addEventListener("click", () => seleccionarHabitacion(tarjeta));
   });
 }
@@ -346,7 +346,7 @@ function seleccionarHabitacion(tarjeta) {
   }
 
   // Quitar selección anterior
-  document.querySelectorAll(".card-habitacion").forEach(c => c.classList.remove("seleccionada"));
+  document.querySelectorAll(".room-card").forEach(t => t.classList.remove("seleccionada"));
   
   // Marcar nueva selección
   tarjeta.classList.add("seleccionada");
@@ -373,18 +373,18 @@ async function reservarHabitacion() {
     return;
   }
 
-  const fechaIngreso = document.getElementById("fechaIngreso").value;
-  const fechaSalida = document.getElementById("fechaSalida").value;
+  const fechaEntrada = document.getElementById("checkin").value;
+  const fechaSalida = document.getElementById("checkout").value;
 
-  console.log('Fecha de ingreso:', fechaIngreso);
-  console.log('Fecha de salida:', fechaSalida);
+  console.log('Check-in:', fechaEntrada);
+  console.log('Check-out:', fechaSalida);
 
-  if (!fechaIngreso || !fechaSalida) {
-    mostrarMensaje("Elegí fechas de ingreso y salida", "error");
+  if (!fechaEntrada || !fechaSalida) {
+    mostrarMensaje("Elegí fechas de check-in y check-out", "error");
     return;
   }
 
-  if (fechaSalida <= fechaIngreso) {
+  if (fechaSalida <= fechaEntrada) {
     mostrarMensaje("La fecha de salida debe ser posterior a la entrada", "error");
     return;
   }
@@ -403,11 +403,11 @@ async function reservarHabitacion() {
   console.log('Reservas actuales de esta habitación:', reservasActuales);
 
   // Verificar superposición de fechas
-  const solapamiento = reservasActuales.some(r => 
-    !(fechaSalida <= r.checkIn || fechaIngreso >= r.checkOut)
+  const haySuperposicion = reservasActuales.some(r => 
+    !(fechaSalida <= r.checkIn || fechaEntrada >= r.checkOut)
   );
 
-  if (solapamiento) {
+  if (haySuperposicion) {
     mostrarMensaje("Las fechas seleccionadas están ocupadas", "error");
     return;
   }
@@ -416,7 +416,7 @@ async function reservarHabitacion() {
   const nuevaReserva = {
     userId: usuarioActual.id,
     userName: usuarioActual.nombre,
-    checkIn: fechaIngreso,
+    checkIn: fechaEntrada,
     checkOut: fechaSalida,
     estado: "pendiente",
     fecha: new Date().toISOString()
@@ -443,8 +443,8 @@ async function reservarHabitacion() {
     habitacionSeleccionada = null;
     
     // Limpiar fechas
-    document.getElementById("fechaIngreso").value = "";
-    document.getElementById("fechaSalida").value = "";
+    document.getElementById("checkin").value = "";
+    document.getElementById("checkout").value = "";
     
     renderizarHabitaciones();
     renderizarMisReservas();
@@ -459,18 +459,18 @@ async function solicitarEditarPrecio(idHabitacion) {
   const habitacion = habitaciones.find(h => h.id === idHabitacion);
   if (!habitacion) return;
 
-  const nuevo = prompt("Nuevo precio para " + habitacion.tipo, habitacion.precio);
-  if (!nuevo) return;
+  const nuevoPrecio = prompt("Nuevo precio para " + habitacion.tipo, habitacion.precio);
+  if (!nuevoPrecio) return;
 
-  const n = parseInt(nuevo);
-  if (isNaN(n) || n <= 0) {
+  const precio = parseInt(nuevoPrecio);
+  if (isNaN(precio) || precio <= 0) {
     mostrarMensaje("Precio inválido", "error");
     return;
   }
 
   const actualizada = await actualizarHabitacion(idHabitacion, {
     ...habitacion,
-    precio: n
+    precio: precio
   });
 
   if (actualizada) {
@@ -483,7 +483,7 @@ async function solicitarEditarPrecio(idHabitacion) {
 // Mis reservas
 async function renderizarMisReservas() {
   const panel = document.getElementById("mis-reservas");
-  const lista = document.getElementById("lista-reservas");
+  const lista = document.getElementById("reservations-list");
 
   if (!usuarioActual) {
     panel.style.display = "none";
@@ -513,16 +513,16 @@ async function renderizarMisReservas() {
 
   lista.innerHTML = "";
   misReservas.forEach(r => {
-    const div = document.createElement("div");
-    div.className = "reservation-row";
-    div.innerHTML = `
+    const fila = document.createElement("div");
+    fila.className = "reservation-row";
+    fila.innerHTML = `
       <div>
         <strong>${r.roomTipo}</strong><br>
         ${r.checkIn} → ${r.checkOut} • ${r.estado}
       </div>
       <button class="btn-small btn-cancel" data-room="${r.roomId}" data-fecha="${r.fecha}">Cancelar</button>
     `;
-    lista.appendChild(div);
+    lista.appendChild(fila);
   });
 
   lista.querySelectorAll(".btn-cancel").forEach(boton => {
@@ -556,7 +556,7 @@ async function cancelarReserva(idHabitacion, fecha) {
 
 // Panel admin
 async function renderizarPanelAdmin() {
-  const panel = document.getElementById("panel-admin");
+  const panel = document.getElementById("admin-panel");
 
   if (!usuarioActual || usuarioActual.role !== "ADMIN") {
     panel.style.display = "none";
@@ -568,22 +568,22 @@ async function renderizarPanelAdmin() {
   await obtenerUsuarios();
 
   // SECCIÓN GESTIÓN DE USUARIOS
-  const divUsuarios = document.getElementById("admin-usuarios");
+  const divUsuarios = document.getElementById("admin-users");
   divUsuarios.innerHTML = `
     <h3>Gestión de Usuarios</h3>
     <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
       <h4>Crear Nuevo Usuario</h4>
-      <form id="admin-crear-usuario-form" style="display: grid; gap: 10px; max-width: 400px;">
-        <input type="text" id="admin-usuario-nombre" placeholder="Nombre" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-        <input type="email" id="admin-usuario-email" placeholder="Email" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-        <input type="password" id="admin-usuario-clave" placeholder="Contraseña" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-        <select id="admin-usuario-rol" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+      <form id="admin-create-user-form" style="display: grid; gap: 10px; max-width: 400px;">
+        <input type="text" id="admin-user-nombre" placeholder="Nombre" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <input type="email" id="admin-user-email" placeholder="Email" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <input type="password" id="admin-user-password" placeholder="Contraseña" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <select id="admin-user-role" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
           <option value="USUARIO">USUARIO</option>
           <option value="ADMIN">ADMIN</option>
         </select>
         <button type="submit" class="btn btn-primary" style="width: auto;">Crear Usuario</button>
       </form>
-      <div id="admin-usuario-msg" style="margin-top: 10px; font-weight: 600;"></div>
+      <div id="admin-user-msg" style="margin-top: 10px; font-weight: 600;"></div>
     </div>
     
     <h4>Lista de Usuarios</h4>
@@ -597,41 +597,41 @@ async function renderizarPanelAdmin() {
         <strong>${u.nombre}</strong> • ${u.email} • <span style="color: ${u.role === 'ADMIN' ? '#dc3545' : '#0b63c6'}">${u.role}</span>
       </div>
       <div style="display: flex; gap: 10px;">
-        <button class="btn-small btn-cambiar-clave" data-id="${u.id}" data-nombre="${u.nombre}">Cambiar Password</button>
-        ${u.id !== usuarioActual.id ? `<button class="btn-small btn-eliminar-usuario" data-id="${u.id}" data-nombre="${u.nombre}" style="background: #ef4444; color: white;">Eliminar</button>` : ''}
+        <button class="btn-small btn-change-password" data-id="${u.id}" data-nombre="${u.nombre}">Cambiar Password</button>
+        ${u.id !== usuarioActual.id ? `<button class="btn-small btn-delete-user" data-id="${u.id}" data-nombre="${u.nombre}" style="background: #ef4444; color: white;">Eliminar</button>` : ''}
       </div>
     `;
     divUsuarios.appendChild(filaUsuario);
   });
 
   // Evento para crear usuario
-  document.getElementById("admin-crear-usuario-form").addEventListener("submit", async (e) => {
+  document.getElementById("admin-create-user-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    await crearUsuarioAdmin();
+    await crearUsuarioDesdeAdmin();
   });
 
   // Eventos para cambiar password
-  document.querySelectorAll(".btn-cambiar-clave").forEach(boton => {
-    boton.addEventListener("click", () => cambiarClaveAdmin(boton.dataset.id, boton.dataset.nombre));
+  document.querySelectorAll(".btn-change-password").forEach(boton => {
+    boton.addEventListener("click", () => cambiarPasswordDesdeAdmin(boton.dataset.id, boton.dataset.nombre));
   });
 
   // Eventos para eliminar usuario
-  document.querySelectorAll(".btn-eliminar-usuario").forEach(boton => {
+  document.querySelectorAll(".btn-delete-user").forEach(boton => {
     boton.addEventListener("click", () => eliminarUsuario(boton.dataset.id, boton.dataset.nombre));
   });
 
   // Habitaciones
-  const divHabitaciones = document.getElementById("admin-habitaciones");
+  const divHabitaciones = document.getElementById("admin-rooms");
   divHabitaciones.innerHTML = "<h3>Habitaciones</h3>";
 
-  habitaciones.forEach(r => {
-    const d = document.createElement("div");
-    d.className = "reservation-row";
-    d.innerHTML = `
-      <div>${r.tipo} • ${formatearPrecio(r.precio)}</div>
-      <button class="btn-small btn-edit" data-id="${r.id}">Editar</button>
+  habitaciones.forEach(h => {
+    const fila = document.createElement("div");
+    fila.className = "reservation-row";
+    fila.innerHTML = `
+      <div>${h.tipo} • ${formatearPrecio(h.precio)}</div>
+      <button class="btn-small btn-edit" data-id="${h.id}">Editar</button>
     `;
-    divHabitaciones.appendChild(d);
+    divHabitaciones.appendChild(fila);
   });
 
   divHabitaciones.querySelectorAll(".btn-edit").forEach(boton => {
@@ -639,13 +639,13 @@ async function renderizarPanelAdmin() {
   });
 
   // Reservas
-  const divReservas = document.getElementById("admin-reservas");
+  const divReservas = document.getElementById("admin-reservations");
   divReservas.innerHTML = "<h3>Reservas</h3>";
 
-  let todasReservas = [];
+  let todasLasReservas = [];
   habitaciones.forEach(hab => {
     (hab.reservas || []).forEach(r => {
-      todasReservas.push({
+      todasLasReservas.push({
         ...r,
         roomId: hab.id,
         roomTipo: hab.tipo
@@ -653,17 +653,17 @@ async function renderizarPanelAdmin() {
     });
   });
 
-  if (todasReservas.length === 0) {
+  if (todasLasReservas.length === 0) {
     divReservas.innerHTML += "<p>No hay reservas</p>";
   } else {
-    todasReservas.forEach(r => {
+    todasLasReservas.forEach(r => {
       const fila = document.createElement("div");
       fila.className = "reservation-row";
       fila.innerHTML = `
         <div>
           <strong>${r.roomTipo}</strong> • ${r.checkIn} → ${r.checkOut} • ${r.userName}
         </div>
-        <select class="sel-estado" data-room="${r.roomId}" data-fecha="${r.fecha}">
+        <select class="sel-status" data-room="${r.roomId}" data-fecha="${r.fecha}">
           <option ${r.estado === "pendiente" ? "selected" : ""}>pendiente</option>
           <option ${r.estado === "confirmada" ? "selected" : ""}>confirmada</option>
           <option ${r.estado === "cancelada" ? "selected" : ""}>cancelada</option>
@@ -672,13 +672,14 @@ async function renderizarPanelAdmin() {
       divReservas.appendChild(fila);
     });
 
-    divReservas.querySelectorAll(".sel-estado").forEach(s => {
-      s.addEventListener("change", async () => {
-        await cambiarEstadoReserva(s.dataset.room, s.dataset.fecha, s.value);
+    divReservas.querySelectorAll(".sel-status").forEach(select => {
+      select.addEventListener("change", async () => {
+        await cambiarEstadoReserva(select.dataset.room, select.dataset.fecha, select.value);
       });
     });
   }
 
+  dibujarGrafico(todasLasReservas);
 }
 
 // Cambiar estado de reserva
@@ -701,28 +702,29 @@ async function cambiarEstadoReserva(idHabitacion, fecha, nuevoEstado) {
   renderizarPanelAdmin();
 }
 
+// NUEVAS FUNCIONES ADMIN
 
 // Crear usuario desde panel admin
-async function crearUsuarioAdmin() {
-  const nombre = document.getElementById("admin-usuario-nombre").value.trim();
-  const email = document.getElementById("admin-usuario-email").value.trim();
-  const password = document.getElementById("admin-usuario-clave").value.trim();
-  const role = document.getElementById("admin-usuario-rol").value;
+async function crearUsuarioDesdeAdmin() {
+  const nombre = document.getElementById("admin-user-nombre").value.trim();
+  const email = document.getElementById("admin-user-email").value.trim();
+  const password = document.getElementById("admin-user-password").value.trim();
+  const rol = document.getElementById("admin-user-role").value;
   
-  const divMsg = document.getElementById("admin-usuario-msg");
+  const divMensaje = document.getElementById("admin-user-msg");
   
   if (!nombre || !email || !password) {
-    divMsg.textContent = "Completá todos los campos";
-    divMsg.style.color = "red";
-    setTimeout(() => divMsg.textContent = "", 3000);
+    divMensaje.textContent = "Completá todos los campos";
+    divMensaje.style.color = "red";
+    setTimeout(() => divMensaje.textContent = "", 3000);
     return;
   }
 
   await obtenerUsuarios();
   if (usuarios.some(u => u.email === email)) {
-    divMsg.textContent = "El email ya está registrado";
-    divMsg.style.color = "red";
-    setTimeout(() => divMsg.textContent = "", 3000);
+    divMensaje.textContent = "El email ya está registrado";
+    divMensaje.style.color = "red";
+    setTimeout(() => divMensaje.textContent = "", 3000);
     return;
   }
 
@@ -730,46 +732,51 @@ async function crearUsuarioAdmin() {
     nombre,
     email,
     password,
-    role
+    role: rol
   });
 
   if (nuevoUsuario) {
-    divMsg.textContent = `Usuario ${role} creado exitosamente`;
-    divMsg.style.color = "green";
-    setTimeout(() => divMsg.textContent = "", 3000);
+    divMensaje.textContent = `Usuario ${rol} creado exitosamente`;
+    divMensaje.style.color = "green";
+    setTimeout(() => divMensaje.textContent = "", 3000);
     
-    document.getElementById("admin-crear-usuario-form").reset();
+    document.getElementById("admin-create-user-form").reset();
     renderizarPanelAdmin();
   }
 }
 
 // Cambiar password de usuario
-async function cambiarClaveAdmin(idUsuario) {
+async function cambiarPasswordDesdeAdmin(idUsuario, nombreUsuario) {
   const usuario = usuarios.find(u => u.id === idUsuario);
-  if (!usuario) return;
+  if (!usuario) {
+    alert("Usuario no encontrado");
+    return;
+  }
 
-  const nuevaClave = prompt(`Nueva contraseña para ${usuario.nombre}:`);
-  if (!nuevaClave) return;
+  const nuevaPassword = prompt(`Nueva contraseña para ${nombreUsuario}:`);
+  if (!nuevaPassword) return;
 
-  if (nuevaClave.length < 6) {
+  if (nuevaPassword.length < 6) {
     alert("La contraseña debe tener al menos 6 caracteres");
     return;
   }
 
   try {
-    const response = await fetch(`${USUARIOS_URL}/${idUsuario}`, {
+    const respuesta = await fetch(`${URL_USUARIOS}/${idUsuario}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...usuario,
-        password: nuevaClave
+        password: nuevaPassword
       })
     });
     
-    if (response.ok) {
+    if (respuesta.ok) {
       alert("Contraseña actualizada exitosamente");
       await obtenerUsuarios();
       renderizarPanelAdmin();
+    } else {
+      alert("Error al cambiar la contraseña");
     }
   } catch (error) {
     console.error('Error al cambiar password:', error);
@@ -778,32 +785,79 @@ async function cambiarClaveAdmin(idUsuario) {
 }
 
 // Eliminar usuario
-async function eliminarUsuario(idUsuario) {
+async function eliminarUsuario(idUsuario, nombreUsuario) {
   const usuario = usuarios.find(u => u.id === idUsuario);
-  if (!usuario) return;
+  if (!usuario) {
+    alert("Usuario no encontrado");
+    return;
+  }
 
-  const confirmar = confirm(`¿Estás seguro de eliminar al usuario ${usuario.nombre}?`);
+  const confirmar = confirm(`¿Estás seguro de eliminar al usuario ${nombreUsuario}?\n\nEsta acción no se puede deshacer.`);
   if (!confirmar) return;
 
+  console.log('Eliminando usuario con ID:', idUsuario);
+
   try {
-    const response = await fetch(`${USUARIOS_URL}/${idUsuario}`, {
+    const respuesta = await fetch(`${URL_USUARIOS}/${idUsuario}`, {
       method: 'DELETE'
     });
     
-    if (response.ok) {
+    console.log('Respuesta de eliminación:', respuesta.status);
+    
+    if (respuesta.ok) {
       alert("Usuario eliminado exitosamente");
       await obtenerUsuarios();
       renderizarPanelAdmin();
+    } else {
+      alert("Error al eliminar el usuario");
     }
   } catch (error) {
     console.error('Error al eliminar usuario:', error);
-    alert("Error al eliminar el usuario");
+    alert("Error al eliminar el usuario: " + error.message);
   }
 }
 
+// Gráfico
+function dibujarGrafico(todasLasReservas) {
+  const contadores = { pendiente: 0, confirmada: 0, cancelada: 0 };
+
+  todasLasReservas.forEach(r => contadores[r.estado]++);
+
+  const contexto = document.getElementById("reservas-chart");
+  if (!contexto) return;
+
+  if (window._instanciaGrafico) window._instanciaGrafico.destroy();
+
+  window._instanciaGrafico = new Chart(contexto, {
+    type: 'doughnut',
+    data: {
+      labels: ['Pendiente', 'Confirmada', 'Cancelada'],
+      datasets: [{
+        data: [contadores.pendiente, contadores.confirmada, contadores.cancelada],
+        backgroundColor: ['#ffc107', '#28a745', '#dc3545']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            boxWidth: 15,
+            padding: 10,
+            font: {
+              size: 12
+            }
+          }
+        }
+      }
+    }
+  });
+}
 
 // Render general
-async function renderizarDespuesDeIngresar() {
+async function renderizarDespuesDeLogin() {
   renderizarEncabezado();
   await renderizarHabitaciones();
   await renderizarMisReservas();
@@ -820,13 +874,13 @@ async function inicializar() {
   cargarUsuarioActual();
   await inicializarDatos();
   
-  activarTabs();
-  registrar();
-  ingresar();
-  renderizarDespuesDeIngresar();
+  activarPestanas();
+  configurarRegistro();
+  configurarLogin();
+  renderizarDespuesDeLogin();
 
   // MODIFICAR: El botón RESERVAR ahora llama a la función de reservar
-  document.getElementById("btnBuscar").addEventListener("click", reservarHabitacion);
+  document.getElementById("btn-search").addEventListener("click", reservarHabitacion);
 }
 
 inicializar();

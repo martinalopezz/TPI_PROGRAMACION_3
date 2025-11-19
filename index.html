@@ -11,8 +11,8 @@
 <body>
 
   <header class="site-header">
-    <div class="contenedor header-inner">
-      <div class="marca">Hotel Mónaco ★★★</div>
+    <div class="container header-inner">
+      <div class="brand">Hotel Mónaco ★★★</div>
 
       <!-- navegación corregida -->
       <nav class="top-nav">
@@ -20,7 +20,7 @@
         <a href="#habitaciones">Habitaciones</a>
         <a href="#contacto">Contacto</a>
 
-        <button id="CerrarSesionBtn" class="btn-cerrar-sesion" style="display:none;">Cerrar sesión</button>
+        <button id="logoutBtn" class="logout-btn" style="display:none;">Cerrar sesión</button>
       </nav>
 
     </div>
@@ -29,7 +29,7 @@
   <main>
     <!-- HERO -->
     <section id="inicio" class="hero">
-      <div class="hero-inner contenedor">
+      <div class="hero-inner container">
         <div class="hero-left">
           <h1>Reserva ahora</h1>
           <p>Registrate y elegi tu habitacion </p>
@@ -37,152 +37,152 @@
           <!-- TARJETA LOGIN/REGISTRO -->
           <aside class="auth-card">
             <div class="auth-tabs">
-              <button class="tab activo" data-tab="ingresar">Ingresar</button>
-              <button class="tab" data-tab="registro">Registrarse</button>
+              <button class="tab active" data-tab="login">Ingresar</button>
+              <button class="tab" data-tab="register">Registrarse</button>
             </div>
 
             <div class="auth-forms">
 
-            <!-- INGRESO -->
-            <form id="form-ingreso" class="form activo" autocomplete="off" novalidate>
-                <label for="ingreso-email">Email</label>
-                <input id="ingreso-email" name="email" type="email" required placeholder="tu@email.com">
+              <!-- LOGIN -->
+              <form id="login-form" class="form active" autocomplete="off" novalidate>
+                <label for="login-email">Email</label>
+                <input id="login-email" name="email" type="email" required placeholder="tu@email.com">
+                <label for="login-password">Contraseña</label>
+                <input id="login-password" name="password" type="password" required placeholder="••••••">
+                <input type="hidden" id="login-role" name="role" value="USUARIO">
+                <button type="submit" class="btn btn-primary">Iniciar sesion</button>
+              </form>
 
-                <label for="ingreso-clave">Contraseña</label>
-                <input id="ingreso-clave" name="password" type="password" required placeholder="••••••">
-
-                <input type="hidden" id="ingreso-rol" name="role" value="USUARIO">
-
-                <button type="submit" class="btn btn-primary">Iniciar sesión</button>
-            </form>
-
-            <!-- REGISTRO -->
-            <form id="form-registro" class="form" autocomplete="off" novalidate>
-                <label for="registro-nombre">Nombre</label>
-                <input id="registro-nombre" name="nombre" type="text" required placeholder="Tu nombre">
-
-                <label for="registro-email">Email</label>
-                <input id="registro-email" name="email" type="email" required placeholder="tu@email.com">
-
-                <label for="registro-clave">Contraseña</label>
-                <input id="registro-clave" name="password" type="password" minlength="6" required placeholder="mín. 6 caracteres">
-
+              <!-- REGISTRO -->
+              <form id="register-form" class="form" autocomplete="off" novalidate>
+                <label for="reg-nombre">Nombre</label>
+                <input id="reg-nombre" name="nombre" type="text" required placeholder="Tu nombre">
+                <label for="reg-email">Email</label>
+                <input id="reg-email" name="email" type="email" required placeholder="tu@email.com">
+                <label for="reg-password">Contraseña</label>
+                <input id="reg-password" name="password" type="password" minlength="6" required placeholder="mín. 6 caracteres">
                 <button type="submit" class="btn btn-primary">Confirmar</button>
-            </form>
+              </form>
 
             </div>
           </aside>
         </div>
 
-            <div class="tarjeta-busqueda">
-        <div class="campos-busqueda contenedor">
+        <!-- BUSCADOR -->
+        <div class="search-card">
+          <div class="search-fields container">
+              <div class="field">
+                <label>Check-in</label>
+                <input id="checkin" type="date">
+              </div>
 
-            <div class="campo">
-                <label>Fecha de ingreso</label>
-                <input id="fechaIngreso" type="date">
-            </div>
+              <div class="field">
+                <label>Check-out</label>
+                <input id="checkout" type="date">
+              </div>
 
-            <div class="campo">
-                <label>Fecha de salida</label>
-                <input id="fechaSalida" type="date">
-            </div>
-
-            <div class="campo">
-                <label>Personas</label>
-                <select id="personas">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
+              <div class="field">
+                <label>Cuantas personas</label>
+                <select id="people">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
                 </select>
-            </div>
+              </div>
 
-            <div class="campo campo-boton-buscar">
-                <button id="btnBuscar" class="btn btn-search">Reservar</button>
-            </div>
+              <!-- botón mover a la última columna -->
+              <div class="field search-btn">
+                <button id="btn-search" class="btn btn-search">Reservar</button>
+              </div>
 
+          </div>
         </div>
-    </div>
 
       </div>
     </section>
 
     <!-- HABITACIONES -->
-    <section id="habitaciones" class="seccion contenedor">
-    <h2 class="titulo-seccion">Habitaciones</h2>
+    <section id="habitaciones" class="section container">
+      <h2 class="section-title">Habitaciones</h2>
 
-    <div class="cards-grids">
-
-        <article class="card card-habitacion">
-        <img src="habitacion1.jpg" alt="Habitación 1">
-        <div class="cuerpo-card">
-            <h3 class="titulo-card">Habitación</h3>
-            <p class="subtitulo-card">Habitación para 2 personas</p>
-            <div class="pie-card">
-            <span class="precio">$10.000</span> 
+      <div class="cards-grid">
+        <article class="card room-card">
+          <img src="habitacion1.jpg" alt="Habitación 1">
+          <div class="card-body">
+            <h3 class="card-title">Habitacion</h3>
+            <p class="card-sub">habitacion para 2 personas</p>
+            <div class="card-footer">
+              <span class="price">$10.000</span> 
             </div>
-        </div>
+          </div>
         </article>
 
-        <article class="card card-habitacion">
-        <img src="habitacion2.jpg" alt="Habitación 2">
-        <div class="cuerpo-card">
-            <h3 class="titulo-card">Habitación</h3>
-            <p class="subtitulo-card">Habitación para 1 persona</p>
-            <div class="pie-card">
-            <span class="precio">$5.000</span>
+        <article class="card room-card">
+          <img src="habitacion2.jpg" alt="Habitación 2">
+          <div class="card-body">
+            <h3 class="card-title">Habitacion</h3>
+            <p class="card-sub">habitacion para 1 persona</p>
+            <div class="card-footer">
+              <span class="price">$5.000</span>
             </div>
-        </div>
+          </div>
         </article>
 
-        <article class="card card-habitacion">
-        <img src="habitacion3.jpg" alt="Habitación 3">
-        <div class="cuerpo-card">
-            <h3 class="titulo-card">Habitación suite</h3>
-            <p class="subtitulo-card">Habitación exclusiva</p>
-            <div class="pie-card">
-            <span class="precio">$50.000</span>
+        <article class="card room-card">
+          <img src="habitacion3.jpg" alt="Habitación 3">
+          <div class="card-body">
+            <h3 class="card-title">Habitacion suite</h3>
+            <p class="card-sub">habitacion exclusiva</p>
+            <div class="card-footer">
+              <span class="price">$50.000</span>
             </div>
-        </div>
+          </div>
         </article>
-
-    </div>
+      </div>
     </section>
 
     <!-- MIS RESERVAS -->
-    <section id="mis-reservas" class="seccion contenedor" style="display:none;">
-        <h2 class="titulo-seccion">Mis reservas</h2>
-        <div id="lista-reservas"></div>
+    <section id="mis-reservas" class="section container" style="display:none;">
+      <h2 class="section-title">Mis Reservas</h2>
+      <div id="reservations-list"></div>
     </section>
 
     <!-- PANEL ADMIN -->
-    <section id="panel-admin" class="seccion contenedor" style="display:none;">
-        <h2 class="titulo-seccion">Panel de administración</h2>
+    <section id="admin-panel" class="section container" style="display:none;">
+      <h2 class="section-title">Panel Admin</h2>
       
-    <!-- GESTIÓN DE USUARIOS -->
-    <div id="admin-usuarios"></div>
-    
-    <!-- GESTIÓN DE HABITACIONES -->
-    <div id="admin-habitaciones"></div>
-    
-    <!-- GESTIÓN DE RESERVAS -->
-    <div id="admin-reservas"></div>
+      <!-- GESTIÓN DE USUARIOS -->
+      <div id="admin-users"></div>
+      
+      <!-- GESTIÓN DE HABITACIONES -->
+      <div id="admin-rooms"></div>
+      
+      <!-- GESTIÓN DE RESERVAS -->
+      <div id="admin-reservations"></div>
+      
+      <!-- GRÁFICO DE ESTADÍSTICAS -->
+      <div style="max-width: 300px; margin: 30px auto;">
+      <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Estadísticas</h3>
+     <canvas id="reservas-chart" width="250" height="120"></canvas>
+  </div>
+    </section>
 
   </main>
 
   <!-- CONTACTO ABAJO -->
-<section id="contacto" class="seccion contenedor">
-  <h2 class="titulo-seccion">Contacto</h2>
+  <section id="contacto" class="section container">
+    <h2 class="section-title">Contacto</h2>
 
-  <div class="caja-contacto">
-    <p><strong>Hotel Mónaco</strong></p>
-    <p>Email: contacto@hotelmonaco.com</p>
-    <p>Teléfono: +54 11 5555-5555</p>
-    <p>Dirección: Calle 123, Córdoba</p>
-  </div>
-</section>
+    <div class="contact-box">
+      <p><strong>Hotel Mónaco</strong></p>
+      <p>Email: contacto@hotelmonaco.com</p>
+      <p>Teléfono: +54 11 5555-5555</p>
+      <p>Dirección: Calle 123, Cordoba</p>
+    </div>
+  </section>
 
-<footer class="pie-de-pagina">
-  <div class="contenedor">
+  <footer class="site-footer">
+    <div class="container">
       <small>© Hotel Mónaco — Todos los derechos reservados</small>
     </div>
   </footer>
@@ -191,5 +191,3 @@
 
 </body>
 </html>
-
-
