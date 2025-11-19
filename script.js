@@ -1,388 +1,886 @@
-// inicio
-const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
-const load = k => JSON.parse(localStorage.getItem(k));
+// URLs de MockAPI
+const URL_API = 'https://691ce2ded58e64bf0d344924.mockapi.io/api/Hotel';
+const URL_USUARIOS = `${URL_API}/Usuarios`;
+const URL_HABITACIONES = `${URL_API}/Habitaciones`;
 
-function seedData() {
-  const users = load("users") || [];
-  if (!users.some(u=>u.role==="ADMIN")) {
-    users.push({ id: Date.now(), nombre: "admin", email: "admin@hotel.com", password: "admin123", role: "ADMIN" });
-    save("users", users);
+// Variables globales
+let usuarioActual = null;
+let usuarios = [];
+let habitaciones = [];
+let habitacionSeleccionada = null;
+
+// Funciones auxiliares para localStorage (solo para usuario actual)
+const guardarUsuarioActual = (usuario) => {
+  usuarioActual = usuario;
+  localStorage.setItem('usuarioActual', JSON.stringify(usuario));
+};
+
+const cargarUsuarioActual = () => {
+  const almacenado = localStorage.getItem('usuarioActual');
+  if (almacenado) {
+    usuarioActual = JSON.parse(almacenado);
   }
+};
 
-  const rooms = load("rooms") || [];
-  if (rooms.length === 0) {
-    save("rooms", [
-      { id: 1, tipo: "Standard", precio: 10000 },
-      { id: 2, tipo: "Single", precio: 5000 },
-      { id: 3, tipo: "Suite", precio: 50000 }
-    ]);
+const limpiarUsuarioActual = () => {
+  usuarioActual = null;
+  localStorage.removeItem('usuarioActual');
+};
+
+// Funciones API
+async function obtenerUsuarios() {
+  try {
+    const respuesta = await fetch(URL_USUARIOS);
+    usuarios = await respuesta.json();
+    return usuarios;
+  } catch (error) {
+    console.error('Error al cargar usuarios:', error);
+    mostrarMensaje('Error al cargar usuarios', 'error');
+    return [];
   }
-
-  if (!load("reservas")) save("reservas", []);
 }
 
-seedData();
+async function obtenerHabitaciones() {
+  try {
+    const respuesta = await fetch(URL_HABITACIONES);
+    habitaciones = await respuesta.json();
+    return habitaciones;
+  } catch (error) {
+    console.error('Error al cargar habitaciones:', error);
+    mostrarMensaje('Error al cargar habitaciones', 'error');
+    return [];
+  }
+}
 
-// mensajes
-function mostrarMensaje(txt, tipo="ok") {
+async function crearUsuario(datosUsuario) {
+  try {
+    const respuesta = await fetch(URL_USUARIOS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datosUsuario)
+    });
+    const nuevoUsuario = await respuesta.json();
+    usuarios.push(nuevoUsuario);
+    return nuevoUsuario;
+  } catch (error) {
+    console.error('Error al crear usuario:', error);
+    mostrarMensaje('Error al registrar usuario', 'error');
+    return null;
+  }
+}
+
+async function actualizarHabitacion(id, datos) {
+  try {
+    const respuesta = await fetch(`${URL_HABITACIONES}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+    const actualizada = await respuesta.json();
+    const indice = habitaciones.findIndex(h => h.id === id);
+    if (indice !== -1) habitaciones[indice] = actualizada;
+    return actualizada;
+  } catch (error) {
+    console.error('Error al actualizar habitación:', error);
+    mostrarMensaje('Error al actualizar habitación', 'error');
+    return null;
+  }
+}
+
+// Inicialización con datos de prueba
+async function inicializarDatos() {
+  console.log('Iniciando inicialización de datos...');
+  await obtenerUsuarios();
+  await obtenerHabitaciones();
+  
+  console.log('Usuarios encontrados:', usuarios.length);
+  console.log('Habitaciones encontradas:', habitaciones.length);
+
+  // Crear admin si no existe
+  if (!usuarios.some(u => u.role === "ADMIN")) {
+    console.log('Creando admin...');
+    await crearUsuario({
+      nombre: "admin",
+      email: "admin@hotel.com",
+      password: "admin123",
+      role: "ADMIN"
+    });
+  }
+
+  // Si no hay habitaciones, crearlas UNA POR UNA con await
+  if (habitaciones.length === 0) {
+    console.log('No hay habitaciones. Creando...');
+    
+    const hab1 = await fetch(URL_HABITACIONES, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tipo: "Standard",
+        precio: 10000,
+        disponible: true,
+        reservas: []
+      })
+    });
+    console.log('Habitación 1 creada:', await hab1.json());
+
+    const hab2 = await fetch(URL_HABITACIONES, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tipo: "Single",
+        precio: 5000,
+        disponible: true,
+        reservas: []
+      })
+    });
+    console.log('Habitación 2 creada:', await hab2.json());
+
+    const hab3 = await fetch(URL_HABITACIONES, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tipo: "Suite",
+        precio: 50000,
+        disponible: true,
+        reservas: []
+      })
+    });
+    console.log('Habitación 3 creada:', await hab3.json());
+
+    await obtenerHabitaciones();
+    console.log('Habitaciones totales después de crear:', habitaciones.length);
+  }
+}
+
+// Mensajes
+function mostrarMensaje(texto, tipo = "ok") {
   let caja = document.querySelector(".msg-box");
   if (!caja) {
     caja = document.createElement("div");
     caja.className = "msg-box";
+    caja.style.cssText = "margin-top: 10px; padding: 10px; border-radius: 8px; text-align: center; font-weight: 600;";
     document.querySelector(".auth-card").appendChild(caja);
   }
-  caja.textContent = txt;
-  caja.style.color = tipo==="error" ? "red" : "green";
-  setTimeout(()=> caja.textContent = "", 3000);
+  caja.textContent = texto;
+  caja.style.color = tipo === "error" ? "red" : "green";
+  setTimeout(() => caja.textContent = "", 3000);
 }
 
-// tabs
-function activarTabs() {
-  const tabs = document.querySelectorAll(".auth-tabs .tab");
-  const forms = document.querySelectorAll(".auth-forms .form");
+// Tabs
+function activarPestanas() {
+  const pestanas = document.querySelectorAll(".auth-tabs .tab");
+  const formularios = document.querySelectorAll(".auth-forms .form");
 
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      tabs.forEach(t=>t.classList.remove("active"));
-      tab.classList.add("active");
+  pestanas.forEach(pestana => {
+    pestana.addEventListener("click", () => {
+      pestanas.forEach(p => p.classList.remove("active"));
+      pestana.classList.add("active");
 
-      forms.forEach(f => {
-        f.classList.toggle("active", f.id.startsWith(tab.dataset.tab));
+      formularios.forEach(f => {
+        f.classList.toggle("active", f.id.startsWith(pestana.dataset.tab));
       });
     });
   });
 }
 
-// registro
-function registrar() {
-  const form = document.getElementById("register-form");
-  form.addEventListener("submit", (e) => {
+// Registro
+function configurarRegistro() {
+  const formulario = document.getElementById("register-form");
+  formulario.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nombre = document.getElementById("reg-nombre").value.trim();
     const email = document.getElementById("reg-email").value.trim();
     const password = document.getElementById("reg-password").value.trim();
 
-    if (!nombre || !email || !password) { mostrarMensaje("Completá todos los campos","error"); return; }
+    if (!nombre || !email || !password) {
+      mostrarMensaje("Completá todos los campos", "error");
+      return;
+    }
 
-    const users = load("users") || [];
-    if (users.some(u => u.email === email)) { mostrarMensaje("Email ya registrado","error"); return;}
+    await obtenerUsuarios();
+    if (usuarios.some(u => u.email === email)) {
+      mostrarMensaje("Email ya registrado", "error");
+      return;
+    }
 
-    users.push({ id: Date.now(), nombre, email, password, role: "USUARIO" });
-    save("users", users);
-    mostrarMensaje("Registro exitoso");
-    form.reset();
+    const nuevoUsuario = await crearUsuario({
+      nombre,
+      email,
+      password,
+      role: "USUARIO"
+    });
+
+    if (nuevoUsuario) {
+      mostrarMensaje("Registro exitoso");
+      formulario.reset();
+    }
   });
 }
 
-// login
-function login() {
-  const form = document.getElementById("login-form");
-  form.addEventListener("submit", (e) => {
+// Login
+function configurarLogin() {
+  const formulario = document.getElementById("login-form");
+  formulario.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value.trim();
 
-    const users = load("users") || [];
-    const user = users.find(u => u.email === email && u.password === password);
+    await obtenerUsuarios();
+    const usuario = usuarios.find(u => u.email === email && u.password === password);
 
-    if (!user) { mostrarMensaje("Credenciales incorrectas","error"); return; }
+    if (!usuario) {
+      mostrarMensaje("Credenciales incorrectas", "error");
+      return;
+    }
 
-    save("currentUser", user);
-    mostrarMensaje("Bienvenido " + user.nombre);
-    renderAfterLogin();
+    guardarUsuarioActual(usuario);
+    mostrarMensaje("Bienvenido " + usuario.nombre);
+    
+    // OCULTAR la tarjeta de login después de iniciar sesión
+    setTimeout(() => {
+      document.querySelector(".auth-card").style.display = "none";
+    }, 1000);
+    
+    renderizarDespuesDeLogin();
   });
 }
 
-// logout
-function logout() {
-  localStorage.removeItem("currentUser");
-  renderAfterLogin();
+// Logout
+function cerrarSesion() {
+  limpiarUsuarioActual();
+  habitacionSeleccionada = null;
+  
+  // MOSTRAR la tarjeta de login al cerrar sesión
+  document.querySelector(".auth-card").style.display = "block";
+  
+  renderizarDespuesDeLogin();
 }
 
-// header
-function renderHeader() {
-  const container = document.querySelector(".header-inner");
-  const user = load("currentUser");
-  let btn = document.getElementById("logout-btn");
+// Header
+function renderizarEncabezado() {
+  const botonCerrarSesion = document.getElementById("logoutBtn");
 
-  if (user && !btn) {
-    btn = document.createElement("button");
-    btn.id = "logout-btn";
-    btn.className = "btn";
-    btn.textContent = "Cerrar sesión";
-    btn.addEventListener("click", logout);
-    container.appendChild(btn);
-  } else if (!user && btn) {
-    btn.remove();
+  if (usuarioActual) {
+    botonCerrarSesion.style.display = "inline-block";
+    botonCerrarSesion.onclick = cerrarSesion;
+  } else {
+    botonCerrarSesion.style.display = "none";
   }
 }
 
-// formato moneda
-function formatPrice(n) { return "$" + n.toLocaleString(); }
+// Formato moneda
+function formatearPrecio(numero) {
+  return "$" + numero.toLocaleString();
+}
 
-// render habitaciones
-function renderRooms() {
-  const grid = document.querySelector(".cards-grid");
-  grid.innerHTML = "";
+// Render habitaciones
+async function renderizarHabitaciones() {
+  await obtenerHabitaciones();
+  
+  const grilla = document.querySelector(".cards-grid");
+  grilla.innerHTML = "";
 
-  const rooms = load("rooms") || [];
-  const reservas = load("reservas") || [];
   const hoy = new Date().toISOString().split("T")[0];
 
-  rooms.forEach((room, i) => {
-    const card = document.createElement("article");
-    card.className = "card room-card";
-    card.dataset.roomId = room.id;
+  habitaciones.forEach((habitacion, indice) => {
+    const tarjeta = document.createElement("article");
+    tarjeta.className = "card room-card";
+    tarjeta.dataset.roomId = habitacion.id;
 
-    const ocupada = reservas.some(r => r.roomId === room.id && hoy >= r.checkIn && hoy <= r.checkOut);
+    // Verificar si hay reservas activas
+    const reservasActivas = habitacion.reservas || [];
+    const ocupada = reservasActivas.some(r => 
+      hoy >= r.checkIn && hoy <= r.checkOut
+    );
 
-    card.innerHTML = `
-      <img src="habitacion${i+1}.jpg" alt="${room.tipo}">
+    // Agregar clase de selección si es la habitación seleccionada
+    if (habitacionSeleccionada === habitacion.id) {
+      tarjeta.classList.add("seleccionada");
+    }
+
+    tarjeta.innerHTML = `
+      <img src="habitacion${indice + 1}.jpg" alt="${habitacion.tipo}">
       <div class="card-body">
-        <h3 class="card-title">${room.tipo}</h3>
+        <h3 class="card-title">${habitacion.tipo}</h3>
         <p class="card-sub">Capacidad: estándar</p>
         <div class="card-footer">
-          <span class="price">${ocupada ? "OCUPADA" : formatPrice(room.precio)}</span>
-          <button class="btn btn-small btn-edit-price">Editar</button>
+          <span class="price">${ocupada ? "OCUPADA" : formatearPrecio(habitacion.precio)}</span>
+          ${usuarioActual && usuarioActual.role === "ADMIN" ? 
+            `<button class="btn btn-small btn-edit-price">Editar</button>` : 
+            ''}
         </div>
       </div>
     `;
 
-    if (ocupada) card.classList.add("ocupada");
+    if (ocupada) tarjeta.classList.add("ocupada");
 
-    grid.appendChild(card);
+    grilla.appendChild(tarjeta);
   });
 
-  document.querySelectorAll(".btn-edit-price").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      promptEditarPrecio(parseInt(btn.closest(".room-card").dataset.roomId));
+  // Eventos solo si es admin
+  if (usuarioActual && usuarioActual.role === "ADMIN") {
+    document.querySelectorAll(".btn-edit-price").forEach(boton => {
+      boton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        solicitarEditarPrecio(boton.closest(".room-card").dataset.roomId);
+      });
     });
-  });
+  }
 
-  document.querySelectorAll(".room-card").forEach(card => {
-    card.addEventListener("click", () => reservarDesdeCard(card));
+  // Eventos para SELECCIONAR habitación (no reservar directamente)
+  document.querySelectorAll(".room-card").forEach(tarjeta => {
+    tarjeta.addEventListener("click", () => seleccionarHabitacion(tarjeta));
   });
 }
 
-// reservar
-function reservarDesdeCard(card) {
-  const user = load("currentUser");
-  if (!user) { mostrarMensaje("Iniciá sesión","error"); return; }
-  if (card.classList.contains("ocupada")) { mostrarMensaje("Habitación ocupada","error"); return; }
-
-  const checkIn = document.getElementById("checkin").value;
-  const checkOut = document.getElementById("checkout").value;
-
-  if (!checkIn || !checkOut) { mostrarMensaje("Elegí fechas","error"); return; }
-  if (checkOut <= checkIn) { mostrarMensaje("Fechas inválidas","error"); return; }
-
-  const roomId = parseInt(card.dataset.roomId);
-  let reservas = load("reservas") || [];
-
-  const overlap = reservas.some(r => r.roomId === roomId && !(checkOut <= r.checkIn || checkIn >= r.checkOut));
-  if (overlap) { mostrarMensaje("Fechas ocupadas","error"); return; }
-
-  reservas.push({
-    id: Date.now(),
-    userId: user.id,
-    roomId,
-    checkIn,
-    checkOut,
-    estado: "pendiente"
-  });
-
-  save("reservas", reservas);
-  mostrarMensaje("Reserva creada");
-
-  renderRooms();
-  renderMisReservas();
-  renderAdminPanel();
-}
-
-// editar precio
-function promptEditarPrecio(roomId) {
-  const rooms = load("rooms") || [];
-  const room = rooms.find(r => r.id === roomId);
-  const nuevo = prompt("Nuevo precio para " + room.tipo, room.precio);
-  if (!nuevo) return;
-
-  const n = parseInt(nuevo);
-  if (isNaN(n) || n <= 0) { mostrarMensaje("Precio inválido","error"); return; }
-
-  room.precio = n;
-  save("rooms", rooms);
-  renderRooms();
-  renderAdminPanel();
-}
-
-// mis reservas
-function renderMisReservas() {
-  const panel = document.getElementById("mis-reservas");
-  const list = document.getElementById("reservations-list");
-  const user = load("currentUser");
-
-  if (!user) { panel.style.display = "none"; return; }
-
-  panel.style.display = "block";
-  const reservas = (load("reservas") || []).filter(r => r.userId === user.id);
-
-  if (reservas.length === 0) {
-    list.innerHTML = "<p>No tenés reservas</p>";
+// NUEVA FUNCIÓN: Seleccionar habitación
+function seleccionarHabitacion(tarjeta) {
+  if (!usuarioActual) {
+    mostrarMensaje("Iniciá sesión para reservar", "error");
     return;
   }
 
-  list.innerHTML = "";
-  reservas.forEach(r => {
-    const room = (load("rooms")||[]).find(x => x.id === r.roomId);
+  if (tarjeta.classList.contains("ocupada")) {
+    mostrarMensaje("Habitación ocupada", "error");
+    return;
+  }
 
-    const div = document.createElement("div");
-    div.className = "reservation-row";
-    div.innerHTML = `
-      <div>
-        <strong>${room.tipo}</strong><br>
-        ${r.checkIn} → ${r.checkOut}
-      </div>
-      <button class="btn-small btn-cancel" data-id="${r.id}">Cancelar</button>
-    `;
-
-    list.appendChild(div);
-  });
-
-  list.querySelectorAll(".btn-cancel").forEach(btn => {
-    btn.addEventListener("click", () => cancelarReserva(parseInt(btn.dataset.id)));
-  });
+  // Quitar selección anterior
+  document.querySelectorAll(".room-card").forEach(t => t.classList.remove("seleccionada"));
+  
+  // Marcar nueva selección
+  tarjeta.classList.add("seleccionada");
+  habitacionSeleccionada = tarjeta.dataset.roomId;
+  
+  const habitacion = habitaciones.find(h => h.id === habitacionSeleccionada);
+  console.log('Habitación seleccionada:', habitacion);
+  mostrarMensaje(`Habitación ${habitacion.tipo} seleccionada - Elegí fechas y presioná RESERVAR`);
 }
 
-// cancelar reserva
-function cancelarReserva(id) {
-  let reservas = load("reservas") || [];
-  reservas = reservas.filter(r => r.id !== id);
-  save("reservas", reservas);
-  mostrarMensaje("Reserva cancelada");
+// MODIFICAR: Reservar ahora usa la habitación seleccionada
+async function reservarHabitacion() {
+  console.log('=== INICIANDO RESERVA ===');
+  console.log('Usuario actual:', usuarioActual);
+  console.log('Habitación seleccionada ID:', habitacionSeleccionada);
+  
+  if (!usuarioActual) {
+    mostrarMensaje("Iniciá sesión", "error");
+    return;
+  }
 
-  renderRooms();
-  renderMisReservas();
-  renderAdminPanel();
+  if (!habitacionSeleccionada) {
+    mostrarMensaje("Primero seleccioná una habitación", "error");
+    return;
+  }
+
+  const fechaEntrada = document.getElementById("checkin").value;
+  const fechaSalida = document.getElementById("checkout").value;
+
+  console.log('Check-in:', fechaEntrada);
+  console.log('Check-out:', fechaSalida);
+
+  if (!fechaEntrada || !fechaSalida) {
+    mostrarMensaje("Elegí fechas de check-in y check-out", "error");
+    return;
+  }
+
+  if (fechaSalida <= fechaEntrada) {
+    mostrarMensaje("La fecha de salida debe ser posterior a la entrada", "error");
+    return;
+  }
+
+  await obtenerHabitaciones();
+  
+  const habitacion = habitaciones.find(h => h.id === habitacionSeleccionada);
+  console.log('Habitación encontrada:', habitacion);
+  
+  if (!habitacion) {
+    mostrarMensaje("Habitación no encontrada", "error");
+    return;
+  }
+
+  const reservasActuales = habitacion.reservas || [];
+  console.log('Reservas actuales de esta habitación:', reservasActuales);
+
+  // Verificar superposición de fechas
+  const haySuperposicion = reservasActuales.some(r => 
+    !(fechaSalida <= r.checkIn || fechaEntrada >= r.checkOut)
+  );
+
+  if (haySuperposicion) {
+    mostrarMensaje("Las fechas seleccionadas están ocupadas", "error");
+    return;
+  }
+
+  // Agregar nueva reserva
+  const nuevaReserva = {
+    userId: usuarioActual.id,
+    userName: usuarioActual.nombre,
+    checkIn: fechaEntrada,
+    checkOut: fechaSalida,
+    estado: "pendiente",
+    fecha: new Date().toISOString()
+  };
+
+  console.log('Nueva reserva a crear:', nuevaReserva);
+  
+  reservasActuales.push(nuevaReserva);
+
+  // Actualizar habitación en MockAPI
+  console.log('Actualizando habitación con reservas:', reservasActuales);
+  
+  const actualizada = await actualizarHabitacion(habitacionSeleccionada, {
+    tipo: habitacion.tipo,
+    precio: habitacion.precio,
+    disponible: habitacion.disponible,
+    reservas: reservasActuales
+  });
+
+  console.log('Resultado de actualización:', actualizada);
+
+  if (actualizada) {
+    mostrarMensaje("¡Reserva creada exitosamente!");
+    habitacionSeleccionada = null;
+    
+    // Limpiar fechas
+    document.getElementById("checkin").value = "";
+    document.getElementById("checkout").value = "";
+    
+    renderizarHabitaciones();
+    renderizarMisReservas();
+    renderizarPanelAdmin();
+  } else {
+    mostrarMensaje("Error al crear la reserva", "error");
+  }
 }
 
-// panel admin
-function renderAdminPanel() {
-  const user = load("currentUser");
-  const panel = document.getElementById("admin-panel");
+// Editar precio
+async function solicitarEditarPrecio(idHabitacion) {
+  const habitacion = habitaciones.find(h => h.id === idHabitacion);
+  if (!habitacion) return;
 
-  if (!user || user.role !== "ADMIN") {
+  const nuevoPrecio = prompt("Nuevo precio para " + habitacion.tipo, habitacion.precio);
+  if (!nuevoPrecio) return;
+
+  const precio = parseInt(nuevoPrecio);
+  if (isNaN(precio) || precio <= 0) {
+    mostrarMensaje("Precio inválido", "error");
+    return;
+  }
+
+  const actualizada = await actualizarHabitacion(idHabitacion, {
+    ...habitacion,
+    precio: precio
+  });
+
+  if (actualizada) {
+    mostrarMensaje("Precio actualizado");
+    renderizarHabitaciones();
+    renderizarPanelAdmin();
+  }
+}
+
+// Mis reservas
+async function renderizarMisReservas() {
+  const panel = document.getElementById("mis-reservas");
+  const lista = document.getElementById("reservations-list");
+
+  if (!usuarioActual) {
     panel.style.display = "none";
     return;
   }
 
   panel.style.display = "block";
+  await obtenerHabitaciones();
 
-  const roomsDiv = document.getElementById("admin-rooms");
-  roomsDiv.innerHTML = "<h3>Habitaciones</h3>";
-
-  const rooms = load("rooms") || [];
-  rooms.forEach(r => {
-    const d = document.createElement("div");
-    d.className = "reservation-row";
-    d.innerHTML = `
-      <div>${r.tipo} • ${formatPrice(r.precio)}</div>
-      <button class="btn-small btn-edit" data-id="${r.id}">Editar</button>
-    `;
-    roomsDiv.appendChild(d);
+  // Recopilar todas las reservas del usuario
+  let misReservas = [];
+  habitaciones.forEach(hab => {
+    const reservasHab = (hab.reservas || []).filter(r => r.userId === usuarioActual.id);
+    reservasHab.forEach(r => {
+      misReservas.push({
+        ...r,
+        roomId: hab.id,
+        roomTipo: hab.tipo
+      });
+    });
   });
 
-  roomsDiv.querySelectorAll(".btn-edit").forEach(btn => {
-    btn.addEventListener("click", () =>
-      promptEditarPrecio(parseInt(btn.dataset.id))
+  if (misReservas.length === 0) {
+    lista.innerHTML = "<p>No tenés reservas</p>";
+    return;
+  }
+
+  lista.innerHTML = "";
+  misReservas.forEach(r => {
+    const fila = document.createElement("div");
+    fila.className = "reservation-row";
+    fila.innerHTML = `
+      <div>
+        <strong>${r.roomTipo}</strong><br>
+        ${r.checkIn} → ${r.checkOut} • ${r.estado}
+      </div>
+      <button class="btn-small btn-cancel" data-room="${r.roomId}" data-fecha="${r.fecha}">Cancelar</button>
+    `;
+    lista.appendChild(fila);
+  });
+
+  lista.querySelectorAll(".btn-cancel").forEach(boton => {
+    boton.addEventListener("click", () => 
+      cancelarReserva(boton.dataset.room, boton.dataset.fecha)
     );
   });
+}
 
-  const resDiv = document.getElementById("admin-reservations");
-  resDiv.innerHTML = "<h3>Reservas</h3>";
+// Cancelar reserva
+async function cancelarReserva(idHabitacion, fecha) {
+  const habitacion = habitaciones.find(h => h.id === idHabitacion);
+  if (!habitacion) return;
 
-  const reservas = load("reservas") || [];
-  if (reservas.length === 0) {
-    resDiv.innerHTML += "<p>No hay reservas</p>";
+  const reservasActualizadas = (habitacion.reservas || []).filter(r => 
+    r.fecha !== fecha
+  );
+
+  const actualizada = await actualizarHabitacion(idHabitacion, {
+    ...habitacion,
+    reservas: reservasActualizadas
+  });
+
+  if (actualizada) {
+    mostrarMensaje("Reserva cancelada");
+    renderizarHabitaciones();
+    renderizarMisReservas();
+    renderizarPanelAdmin();
+  }
+}
+
+// Panel admin
+async function renderizarPanelAdmin() {
+  const panel = document.getElementById("admin-panel");
+
+  if (!usuarioActual || usuarioActual.role !== "ADMIN") {
+    panel.style.display = "none";
+    return;
+  }
+
+  panel.style.display = "block";
+  await obtenerHabitaciones();
+  await obtenerUsuarios();
+
+  // SECCIÓN GESTIÓN DE USUARIOS
+  const divUsuarios = document.getElementById("admin-users");
+  divUsuarios.innerHTML = `
+    <h3>Gestión de Usuarios</h3>
+    <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+      <h4>Crear Nuevo Usuario</h4>
+      <form id="admin-create-user-form" style="display: grid; gap: 10px; max-width: 400px;">
+        <input type="text" id="admin-user-nombre" placeholder="Nombre" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <input type="email" id="admin-user-email" placeholder="Email" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <input type="password" id="admin-user-password" placeholder="Contraseña" required style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <select id="admin-user-role" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+          <option value="USUARIO">USUARIO</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+        <button type="submit" class="btn btn-primary" style="width: auto;">Crear Usuario</button>
+      </form>
+      <div id="admin-user-msg" style="margin-top: 10px; font-weight: 600;"></div>
+    </div>
+    
+    <h4>Lista de Usuarios</h4>
+  `;
+
+  usuarios.forEach(u => {
+    const filaUsuario = document.createElement("div");
+    filaUsuario.className = "reservation-row";
+    filaUsuario.innerHTML = `
+      <div>
+        <strong>${u.nombre}</strong> • ${u.email} • <span style="color: ${u.role === 'ADMIN' ? '#dc3545' : '#0b63c6'}">${u.role}</span>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-small btn-change-password" data-id="${u.id}" data-nombre="${u.nombre}">Cambiar Password</button>
+        ${u.id !== usuarioActual.id ? `<button class="btn-small btn-delete-user" data-id="${u.id}" data-nombre="${u.nombre}" style="background: #ef4444; color: white;">Eliminar</button>` : ''}
+      </div>
+    `;
+    divUsuarios.appendChild(filaUsuario);
+  });
+
+  // Evento para crear usuario
+  document.getElementById("admin-create-user-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await crearUsuarioDesdeAdmin();
+  });
+
+  // Eventos para cambiar password
+  document.querySelectorAll(".btn-change-password").forEach(boton => {
+    boton.addEventListener("click", () => cambiarPasswordDesdeAdmin(boton.dataset.id, boton.dataset.nombre));
+  });
+
+  // Eventos para eliminar usuario
+  document.querySelectorAll(".btn-delete-user").forEach(boton => {
+    boton.addEventListener("click", () => eliminarUsuario(boton.dataset.id, boton.dataset.nombre));
+  });
+
+  // Habitaciones
+  const divHabitaciones = document.getElementById("admin-rooms");
+  divHabitaciones.innerHTML = "<h3>Habitaciones</h3>";
+
+  habitaciones.forEach(h => {
+    const fila = document.createElement("div");
+    fila.className = "reservation-row";
+    fila.innerHTML = `
+      <div>${h.tipo} • ${formatearPrecio(h.precio)}</div>
+      <button class="btn-small btn-edit" data-id="${h.id}">Editar</button>
+    `;
+    divHabitaciones.appendChild(fila);
+  });
+
+  divHabitaciones.querySelectorAll(".btn-edit").forEach(boton => {
+    boton.addEventListener("click", () => solicitarEditarPrecio(boton.dataset.id));
+  });
+
+  // Reservas
+  const divReservas = document.getElementById("admin-reservations");
+  divReservas.innerHTML = "<h3>Reservas</h3>";
+
+  let todasLasReservas = [];
+  habitaciones.forEach(hab => {
+    (hab.reservas || []).forEach(r => {
+      todasLasReservas.push({
+        ...r,
+        roomId: hab.id,
+        roomTipo: hab.tipo
+      });
+    });
+  });
+
+  if (todasLasReservas.length === 0) {
+    divReservas.innerHTML += "<p>No hay reservas</p>";
   } else {
-    reservas.forEach(r => {
-      const room = rooms.find(x => x.id === r.roomId);
-      const userData = load("users").find(u => u.id === r.userId);
-
-      const row = document.createElement("div");
-      row.className = "reservation-row";
-      row.innerHTML = `
+    todasLasReservas.forEach(r => {
+      const fila = document.createElement("div");
+      fila.className = "reservation-row";
+      fila.innerHTML = `
         <div>
-          <strong>${room.tipo}</strong> • ${r.checkIn} → ${r.checkOut} • ${userData.nombre}
+          <strong>${r.roomTipo}</strong> • ${r.checkIn} → ${r.checkOut} • ${r.userName}
         </div>
-        <select class="sel-status" data-id="${r.id}">
-          <option ${r.estado==="pendiente"?"selected":""}>pendiente</option>
-          <option ${r.estado==="confirmada"?"selected":""}>confirmada</option>
-          <option ${r.estado==="cancelada"?"selected":""}>cancelada</option>
+        <select class="sel-status" data-room="${r.roomId}" data-fecha="${r.fecha}">
+          <option ${r.estado === "pendiente" ? "selected" : ""}>pendiente</option>
+          <option ${r.estado === "confirmada" ? "selected" : ""}>confirmada</option>
+          <option ${r.estado === "cancelada" ? "selected" : ""}>cancelada</option>
         </select>
       `;
-
-      resDiv.appendChild(row);
+      divReservas.appendChild(fila);
     });
 
-    resDiv.querySelectorAll(".sel-status").forEach(s => {
-      s.addEventListener("change", () => {
-        const reservas = load("reservas");
-        const r = reservas.find(x => x.id === parseInt(s.dataset.id));
-        r.estado = s.value;
-        save("reservas", reservas);
-        drawChart();
+    divReservas.querySelectorAll(".sel-status").forEach(select => {
+      select.addEventListener("change", async () => {
+        await cambiarEstadoReserva(select.dataset.room, select.dataset.fecha, select.value);
       });
     });
   }
 
-  drawChart();
+  dibujarGrafico(todasLasReservas);
 }
 
-// gráfico
-function drawChart() {
-  const reservas = load("reservas") || [];
-  const counts = { pendiente:0, confirmada:0, cancelada:0 };
+// Cambiar estado de reserva
+async function cambiarEstadoReserva(idHabitacion, fecha, nuevoEstado) {
+  const habitacion = habitaciones.find(h => h.id === idHabitacion);
+  if (!habitacion) return;
 
-  reservas.forEach(r => counts[r.estado]++);
+  const reservasActualizadas = (habitacion.reservas || []).map(r => {
+    if (r.fecha === fecha) {
+      return { ...r, estado: nuevoEstado };
+    }
+    return r;
+  });
 
-  const ctx = document.getElementById("reservas-chart");
-  if (!ctx) return;
+  await actualizarHabitacion(idHabitacion, {
+    ...habitacion,
+    reservas: reservasActualizadas
+  });
 
-  if (window._chartInstance) window._chartInstance.destroy();
+  renderizarPanelAdmin();
+}
 
-  window._chartInstance = new Chart(ctx, {
+// NUEVAS FUNCIONES ADMIN
+
+// Crear usuario desde panel admin
+async function crearUsuarioDesdeAdmin() {
+  const nombre = document.getElementById("admin-user-nombre").value.trim();
+  const email = document.getElementById("admin-user-email").value.trim();
+  const password = document.getElementById("admin-user-password").value.trim();
+  const rol = document.getElementById("admin-user-role").value;
+  
+  const divMensaje = document.getElementById("admin-user-msg");
+  
+  if (!nombre || !email || !password) {
+    divMensaje.textContent = "Completá todos los campos";
+    divMensaje.style.color = "red";
+    setTimeout(() => divMensaje.textContent = "", 3000);
+    return;
+  }
+
+  await obtenerUsuarios();
+  if (usuarios.some(u => u.email === email)) {
+    divMensaje.textContent = "El email ya está registrado";
+    divMensaje.style.color = "red";
+    setTimeout(() => divMensaje.textContent = "", 3000);
+    return;
+  }
+
+  const nuevoUsuario = await crearUsuario({
+    nombre,
+    email,
+    password,
+    role: rol
+  });
+
+  if (nuevoUsuario) {
+    divMensaje.textContent = `Usuario ${rol} creado exitosamente`;
+    divMensaje.style.color = "green";
+    setTimeout(() => divMensaje.textContent = "", 3000);
+    
+    document.getElementById("admin-create-user-form").reset();
+    renderizarPanelAdmin();
+  }
+}
+
+// Cambiar password de usuario
+async function cambiarPasswordDesdeAdmin(idUsuario, nombreUsuario) {
+  const usuario = usuarios.find(u => u.id === idUsuario);
+  if (!usuario) {
+    alert("Usuario no encontrado");
+    return;
+  }
+
+  const nuevaPassword = prompt(`Nueva contraseña para ${nombreUsuario}:`);
+  if (!nuevaPassword) return;
+
+  if (nuevaPassword.length < 6) {
+    alert("La contraseña debe tener al menos 6 caracteres");
+    return;
+  }
+
+  try {
+    const respuesta = await fetch(`${URL_USUARIOS}/${idUsuario}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...usuario,
+        password: nuevaPassword
+      })
+    });
+    
+    if (respuesta.ok) {
+      alert("Contraseña actualizada exitosamente");
+      await obtenerUsuarios();
+      renderizarPanelAdmin();
+    } else {
+      alert("Error al cambiar la contraseña");
+    }
+  } catch (error) {
+    console.error('Error al cambiar password:', error);
+    alert("Error al cambiar la contraseña");
+  }
+}
+
+// Eliminar usuario
+async function eliminarUsuario(idUsuario, nombreUsuario) {
+  const usuario = usuarios.find(u => u.id === idUsuario);
+  if (!usuario) {
+    alert("Usuario no encontrado");
+    return;
+  }
+
+  const confirmar = confirm(`¿Estás seguro de eliminar al usuario ${nombreUsuario}?\n\nEsta acción no se puede deshacer.`);
+  if (!confirmar) return;
+
+  console.log('Eliminando usuario con ID:', idUsuario);
+
+  try {
+    const respuesta = await fetch(`${URL_USUARIOS}/${idUsuario}`, {
+      method: 'DELETE'
+    });
+    
+    console.log('Respuesta de eliminación:', respuesta.status);
+    
+    if (respuesta.ok) {
+      alert("Usuario eliminado exitosamente");
+      await obtenerUsuarios();
+      renderizarPanelAdmin();
+    } else {
+      alert("Error al eliminar el usuario");
+    }
+  } catch (error) {
+    console.error('Error al eliminar usuario:', error);
+    alert("Error al eliminar el usuario: " + error.message);
+  }
+}
+
+// Gráfico
+function dibujarGrafico(todasLasReservas) {
+  const contadores = { pendiente: 0, confirmada: 0, cancelada: 0 };
+
+  todasLasReservas.forEach(r => contadores[r.estado]++);
+
+  const contexto = document.getElementById("reservas-chart");
+  if (!contexto) return;
+
+  if (window._instanciaGrafico) window._instanciaGrafico.destroy();
+
+  window._instanciaGrafico = new Chart(contexto, {
     type: 'doughnut',
     data: {
-      labels: ['pendiente','confirmada','cancelada'],
-      datasets:[{ data: [counts.pendiente, counts.confirmada, counts.cancelada] }]
+      labels: ['Pendiente', 'Confirmada', 'Cancelada'],
+      datasets: [{
+        data: [contadores.pendiente, contadores.confirmada, contadores.cancelada],
+        backgroundColor: ['#ffc107', '#28a745', '#dc3545']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            boxWidth: 15,
+            padding: 10,
+            font: {
+              size: 12
+            }
+          }
+        }
+      }
     }
   });
 }
 
-// render general
-function renderAfterLogin() {
-  renderHeader();
-  renderRooms();
-  renderMisReservas();
-  renderAdminPanel();
+// Render general
+async function renderizarDespuesDeLogin() {
+  renderizarEncabezado();
+  await renderizarHabitaciones();
+  await renderizarMisReservas();
+  await renderizarPanelAdmin();
+  
+  // Si hay usuario logueado, ocultar auth-card
+  if (usuarioActual) {
+    document.querySelector(".auth-card").style.display = "none";
+  }
 }
 
-// inicial
-function init() {
-  activarTabs();
-  registrar();
-  login();
-  renderAfterLogin();
+// Inicialización
+async function inicializar() {
+  cargarUsuarioActual();
+  await inicializarDatos();
+  
+  activarPestanas();
+  configurarRegistro();
+  configurarLogin();
+  renderizarDespuesDeLogin();
 
-  document.getElementById("btn-search").addEventListener("click", () => {
-    const a = document.getElementById("checkin").value;
-    const b = document.getElementById("checkout").value;
-    if (!a || !b) { mostrarMensaje("Elegí fechas","error"); return; }
-    if (b <= a) { mostrarMensaje("Fechas inválidas","error"); return; }
-    mostrarMensaje("Fechas listas");
-  });
+  // MODIFICAR: El botón RESERVAR ahora llama a la función de reservar
+  document.getElementById("btn-search").addEventListener("click", reservarHabitacion);
 }
 
-init();
-
+inicializar();

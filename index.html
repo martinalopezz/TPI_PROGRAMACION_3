@@ -50,7 +50,7 @@
                 <label for="login-password">Contraseña</label>
                 <input id="login-password" name="password" type="password" required placeholder="••••••">
                 <input type="hidden" id="login-role" name="role" value="USUARIO">
-                <button type="submit" class="btn btn-primary">Ingresar</button>
+                <button type="submit" class="btn btn-primary">Iniciar sesion</button>
               </form>
 
               <!-- REGISTRO -->
@@ -61,7 +61,7 @@
                 <input id="reg-email" name="email" type="email" required placeholder="tu@email.com">
                 <label for="reg-password">Contraseña</label>
                 <input id="reg-password" name="password" type="password" minlength="6" required placeholder="mín. 6 caracteres">
-                <button type="submit" class="btn btn-primary">Registrarme</button>
+                <button type="submit" class="btn btn-primary">Confirmar</button>
               </form>
 
             </div>
@@ -150,9 +150,21 @@
     <!-- PANEL ADMIN -->
     <section id="admin-panel" class="section container" style="display:none;">
       <h2 class="section-title">Panel Admin</h2>
+      
+      <!-- GESTIÓN DE USUARIOS -->
+      <div id="admin-users"></div>
+      
+      <!-- GESTIÓN DE HABITACIONES -->
       <div id="admin-rooms"></div>
+      
+      <!-- GESTIÓN DE RESERVAS -->
       <div id="admin-reservations"></div>
-      <canvas id="reservas-chart" width="400" height="160"></canvas>
+      
+      <!-- GRÁFICO DE ESTADÍSTICAS -->
+      <div style="max-width: 300px; margin: 30px auto;">
+      <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Estadísticas</h3>
+     <canvas id="reservas-chart" width="250" height="120"></canvas>
+  </div>
     </section>
 
   </main>
@@ -179,4 +191,3 @@
 
 </body>
 </html>
-

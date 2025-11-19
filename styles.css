@@ -5,6 +5,29 @@
   box-sizing: border-box;
 }
 
+.room-card.seleccionada {
+  border: 3px solid #0b63c6;
+  box-shadow: 0 8px 30px rgba(11, 99, 198, 0.3);
+  transform: scale(1.02);
+}
+
+.btn-small {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-edit, .btn-edit-price {
+  background: #6366f1;
+  color: white;
+}
+
+.btn-cancel {
+  background: #ef4444;
+  color: white;
+}
 /* GENERAL */
 body {
   font-family: "Inter", sans-serif;
@@ -22,7 +45,7 @@ body {
 .site-header {
   background: #ffffff;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  padding: 14px 0;
+  padding: 14px 0 ;
   position: sticky;
   top: 0;
   z-index: 20;
@@ -54,7 +77,18 @@ body {
 }
 
 .top-nav a:hover {
-  color: #0b3d91;
+  color: #3f85ff;
+}
+.logout-btn{
+  margin-left: 15px;
+  padding: 6px 14px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color .2s ease, opacity .2s ease;
 }
 
 /* HERO */
@@ -110,7 +144,7 @@ body {
 }
 
 .auth-tabs .tab.active {
-  background: #0b63c6;
+  background: #605e5e;
   color: #ffffff;
 }
 
