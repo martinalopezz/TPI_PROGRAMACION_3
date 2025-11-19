@@ -1,0 +1,7 @@
+integrantes 
+Gaston Paniagua 16344
+Nazareno Cignetti 16468
+Martina Lopez 15487
+
+repositorio donde esta el proyecto
+https://github.com/martinalopezz/TPI_PROGRAMACION_3.git
